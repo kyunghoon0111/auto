@@ -3,7 +3,10 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(pip install:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
