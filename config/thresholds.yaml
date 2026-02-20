@@ -1,0 +1,34 @@
+version: 1
+inventory:
+  doh_overstock:
+    RM: 120
+    PM: 180
+    WIP: 90
+    FG: 90
+  stockout_days_cover:
+    default: 7
+    FG: 10
+expiry:
+  buckets_days: [0,30,60,90,180,365]
+  min_sellable_days_default:
+    RM: 30
+    PM: 90
+    FG: 60
+reconciliation:
+  inventory_adjustment_ratio_warn: 0.01
+  inventory_adjustment_ratio_high: 0.03
+constraints:
+  baseline_weeks: 8
+  supply:
+    late_po_ratio_high: 0.2
+    supplier_delay_days_high: 7
+  warehouse_3pl:
+    backlog_ship_orders_high: 200
+    pick_pack_throughput_ratio_low: 0.8
+  logistics_customs:
+    dwell_time_days_high: 5
+    carrier_on_time_rate_low: 0.9
+  demand_channel:
+    return_rate_spike_ratio_high: 1.5
+    promo_lift_ratio_high: 2.0
+    forecast_mape_high: 0.4

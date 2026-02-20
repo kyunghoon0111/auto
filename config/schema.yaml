@@ -1,0 +1,172 @@
+version: 1
+tables:
+  fact_order:
+    description: "OMS demand truth (order lines)"
+    business_key: ["channel_order_id","line_no"]
+    event_date_column: "order_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "channel_order_id", type: "VARCHAR"}
+      - {name: "line_no", type: "BIGINT"}
+      - {name: "order_date", type: "DATE"}
+      - {name: "channel_store_id", type: "VARCHAR"}
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "qty_ordered", type: "DOUBLE"}
+    optional_columns:
+      - {name: "partner_id", type: "VARCHAR"}
+      - {name: "ship_from_warehouse_id", type: "VARCHAR"}
+      - {name: "currency", type: "VARCHAR"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_shipment:
+    description: "WMS/3PL shipment truth"
+    business_key: ["shipment_id","item_id","lot_id"]
+    event_date_column: "ship_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "shipment_id", type: "VARCHAR"}
+      - {name: "ship_date", type: "DATE"}
+      - {name: "warehouse_id", type: "VARCHAR"}
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "qty_shipped", type: "DOUBLE"}
+    optional_columns:
+      - {name: "lot_id", type: "VARCHAR"}
+      - {name: "weight", type: "DOUBLE"}
+      - {name: "volume_cbm", type: "DOUBLE"}
+      - {name: "channel_order_id", type: "VARCHAR"}
+      - {name: "channel_store_id", type: "VARCHAR"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_return:
+    description: "Returns"
+    business_key: ["return_id","item_id","lot_id"]
+    event_date_column: "return_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "return_id", type: "VARCHAR"}
+      - {name: "return_date", type: "DATE"}
+      - {name: "warehouse_id", type: "VARCHAR"}
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "qty_returned", type: "DOUBLE"}
+    optional_columns:
+      - {name: "lot_id", type: "VARCHAR"}
+      - {name: "channel_order_id", type: "VARCHAR"}
+      - {name: "reason", type: "VARCHAR"}
+      - {name: "disposition", type: "VARCHAR"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_inventory_snapshot:
+    description: "Inventory snapshot SSOT (lot/expiry)"
+    business_key: ["snapshot_date","warehouse_id","item_id","lot_id"]
+    event_date_column: "snapshot_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "snapshot_date", type: "DATE"}
+      - {name: "warehouse_id", type: "VARCHAR"}
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "lot_id", type: "VARCHAR"}
+      - {name: "onhand_qty", type: "DOUBLE"}
+    optional_columns:
+      - {name: "expiry_date", type: "DATE"}
+      - {name: "qc_status", type: "VARCHAR"}
+      - {name: "hold_flag", type: "BOOLEAN"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_po:
+    description: "ERP purchase orders"
+    business_key: ["po_id","item_id"]
+    event_date_column: "po_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "po_id", type: "VARCHAR"}
+      - {name: "po_date", type: "DATE"}
+      - {name: "supplier_id", type: "VARCHAR"}
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "qty_ordered", type: "DOUBLE"}
+    optional_columns:
+      - {name: "eta_date", type: "DATE"}
+      - {name: "incoterms", type: "VARCHAR"}
+      - {name: "currency", type: "VARCHAR"}
+      - {name: "unit_price", type: "DOUBLE"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_receipt:
+    description: "Receipts (ERP/WMS)"
+    business_key: ["receipt_id","item_id"]
+    event_date_column: "receipt_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "receipt_id", type: "VARCHAR"}
+      - {name: "receipt_date", type: "DATE"}
+      - {name: "warehouse_id", type: "VARCHAR"}
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "qty_received", type: "DOUBLE"}
+    optional_columns:
+      - {name: "po_id", type: "VARCHAR"}
+      - {name: "lot_id", type: "VARCHAR"}
+      - {name: "expiry_date", type: "DATE"}
+      - {name: "mfg_date", type: "DATE"}
+      - {name: "qc_status", type: "VARCHAR"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_settlement:
+    description: "Settlement SSOT for revenue/fees"
+    business_key: ["settlement_id","line_no"]
+    event_date_column: "period"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "settlement_id", type: "VARCHAR"}
+      - {name: "line_no", type: "BIGINT"}
+      - {name: "period", type: "VARCHAR"}
+      - {name: "channel_store_id", type: "VARCHAR"}
+      - {name: "currency", type: "VARCHAR"}
+    optional_columns:
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "gross_sales", type: "DOUBLE"}
+      - {name: "discounts", type: "DOUBLE"}
+      - {name: "fees", type: "DOUBLE"}
+      - {name: "refunds", type: "DOUBLE"}
+      - {name: "net_payout", type: "DOUBLE"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_charge_actual:
+    description: "Unified cost/fee ledger (logistics + others)"
+    business_key: ["invoice_no","invoice_line_no","charge_type"]
+    event_date_column: "invoice_date"
+    required_columns:
+      - {name: "source_system", type: "VARCHAR"}
+      - {name: "invoice_no", type: "VARCHAR"}
+      - {name: "invoice_line_no", type: "BIGINT"}
+      - {name: "charge_type", type: "VARCHAR"}
+      - {name: "amount", type: "DOUBLE"}
+      - {name: "currency", type: "VARCHAR"}
+      - {name: "period", type: "VARCHAR"}
+    optional_columns:
+      - {name: "invoice_date", type: "DATE"}
+      - {name: "vendor_partner_id", type: "VARCHAR"}
+      - {name: "charge_basis", type: "VARCHAR"}
+      - {name: "reference_type", type: "VARCHAR"}
+      - {name: "reference_id", type: "VARCHAR"}
+      - {name: "channel_store_id", type: "VARCHAR"}
+      - {name: "warehouse_id", type: "VARCHAR"}
+      - {name: "country", type: "VARCHAR"}
+      - {name: "source_pk", type: "VARCHAR"}
+
+  fact_exchange_rate:
+    description: "FX rate to KRW (period-based)"
+    business_key: ["period","currency"]
+    event_date_column: "period"
+    required_columns:
+      - {name: "period", type: "VARCHAR"}
+      - {name: "currency", type: "VARCHAR"}
+      - {name: "rate_to_krw", type: "DOUBLE"}
+
+  fact_cost_structure:
+    description: "Unit cost structure (effective_from versioned)"
+    business_key: ["item_id","cost_component","effective_from"]
+    event_date_column: "effective_from"
+    required_columns:
+      - {name: "item_id", type: "VARCHAR"}
+      - {name: "cost_component", type: "VARCHAR"}
+      - {name: "effective_from", type: "DATE"}
+      - {name: "cost_per_unit_krw", type: "DOUBLE"}

@@ -1,0 +1,4 @@
+version: 1
+rules:
+  - {country: "KR", incoterms: "*", tax_treatment: "UNSPECIFIED", effective_from: "2000-01-01"}
+  - {country: "*",  incoterms: "*", tax_treatment: "UNSPECIFIED", effective_from: "2000-01-01"}

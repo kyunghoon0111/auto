@@ -1,0 +1,19 @@
+version: 1
+domains:
+  fx_rate:
+    requirement: REQUIRED
+  revenue_settlement:
+    requirement: OPTIONAL
+  logistics_transport:
+    requirement: OPTIONAL
+  customs:
+    requirement: OPTIONAL
+  3pl_billing:
+    requirement: OPTIONAL
+  cost_structure:
+    requirement: OPTIONAL
+
+close_period_enforcement:
+  fx_rate: REQUIRED
+  logistics_transport: REQUIRED
+  cost_structure: REQUIRED

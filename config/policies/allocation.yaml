@@ -1,0 +1,16 @@
+version: 1
+rounding:
+  mode: "HALF_UP"
+  decimals: 0
+  remainder_strategy: "largest_fraction"
+default_basis_by_stage:
+  inbound_landed: ["weight","volume_cbm","value","qty"]
+  storage: ["onhand_cbm_days","onhand_qty_days"]
+  outbound: ["order_count","line_count","weight","qty"]
+  returns: ["line_count","qty"]
+  period: ["revenue","line_count"]
+charge_type_overrides:
+  3PL_STORAGE_FEE: {basis_priority: ["onhand_cbm_days","onhand_qty_days"]}
+  LAST_MILE_PARCEL: {basis_priority: ["order_count","line_count"]}
+determinism:
+  sort_keys: ["period","charge_type","warehouse_id","channel_store_id","item_id","lot_id","business_key"]

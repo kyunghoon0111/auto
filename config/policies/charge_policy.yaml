@@ -1,0 +1,20 @@
+version: 1
+charge_types:
+  LAST_MILE_PARCEL:          {charge_domain: logistics_transport, cost_stage: outbound,       capitalizable_flag: false, default_allocation_basis: order_count,      severity_if_missing: warn}
+  DOMESTIC_TRUCKING:         {charge_domain: logistics_transport, cost_stage: outbound,       capitalizable_flag: false, default_allocation_basis: weight,           severity_if_missing: warn}
+  FREIGHT_INTL_SEA:          {charge_domain: logistics_transport, cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: weight,           severity_if_missing: warn}
+  FREIGHT_INTL_AIR:          {charge_domain: logistics_transport, cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: weight,           severity_if_missing: warn}
+  PORT_TERMINAL_FEE:         {charge_domain: logistics_transport, cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: value,            severity_if_missing: warn}
+  FORWARDER_FEE:             {charge_domain: logistics_transport, cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: value,            severity_if_missing: warn}
+  CUSTOMS_DUTY:              {charge_domain: customs,             cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: value,            severity_if_missing: warn}
+  CUSTOMS_VAT:               {charge_domain: customs,             cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: value,            severity_if_missing: warn}
+  BROKER_FEE:                {charge_domain: customs,             cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: value,            severity_if_missing: warn}
+  CARGO_INSURANCE:           {charge_domain: logistics_transport, cost_stage: inbound_landed, capitalizable_flag: true,  default_allocation_basis: value,            severity_if_missing: warn}
+  3PL_STORAGE_FEE:           {charge_domain: 3pl_billing,         cost_stage: storage,        capitalizable_flag: false, default_allocation_basis: onhand_cbm_days,  severity_if_missing: warn}
+  3PL_PICK_PACK_FEE:         {charge_domain: 3pl_billing,         cost_stage: outbound,       capitalizable_flag: false, default_allocation_basis: line_count,       severity_if_missing: warn}
+  3PL_HANDLING_FEE:          {charge_domain: 3pl_billing,         cost_stage: outbound,       capitalizable_flag: false, default_allocation_basis: line_count,       severity_if_missing: warn}
+  3PL_RETURN_PROCESSING_FEE: {charge_domain: 3pl_billing,         cost_stage: returns,        capitalizable_flag: false, default_allocation_basis: line_count,       severity_if_missing: warn}
+  DISPOSAL_FEE:              {charge_domain: 3pl_billing,         cost_stage: returns,        capitalizable_flag: false, default_allocation_basis: qty,              severity_if_missing: warn}
+  PLATFORM_FEE:              {charge_domain: platform_fee,        cost_stage: period,         capitalizable_flag: false, default_allocation_basis: revenue,          severity_if_missing: warn}
+  PG_FEE:                    {charge_domain: platform_fee,        cost_stage: period,         capitalizable_flag: false, default_allocation_basis: revenue,          severity_if_missing: warn}
+  MARKETING_SPEND:           {charge_domain: marketing,           cost_stage: period,         capitalizable_flag: false, default_allocation_basis: revenue,          severity_if_missing: warn}
