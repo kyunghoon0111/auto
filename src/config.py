@@ -156,6 +156,13 @@ class AppConfig:
         """Return all known charge type names."""
         return set(self.charge_policy.keys())
 
+    def get_charge_types_by_domain(self) -> dict[str, list[str]]:
+        """Return charge types grouped by charge_domain."""
+        result: dict[str, list[str]] = {}
+        for ct_name, ct_policy in self.charge_policy.items():
+            result.setdefault(ct_policy.charge_domain, []).append(ct_name)
+        return result
+
     def get_allocation_basis_priority(self, charge_type: str) -> list[str]:
         """Get allocation basis priority for a charge type."""
         # Check overrides first

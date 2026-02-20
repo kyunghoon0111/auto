@@ -9,54 +9,42 @@ import polars as pl
 from src.config import AppConfig
 from src.period_close import is_period_closed
 
-# Map coverage domains to their source tables and filters
-DOMAIN_QUERIES = {
-    "fx_rate": {
-        "query": "SELECT period, COUNT(*) as cnt FROM core.fact_exchange_rate GROUP BY period",
-        "min_rows": 1,
-    },
-    "revenue_settlement": {
-        "query": "SELECT period, COUNT(*) as cnt FROM core.fact_settlement GROUP BY period",
-        "min_rows": 1,
-    },
-    "logistics_transport": {
-        "query": """
-            SELECT period, COUNT(*) as cnt
-            FROM core.fact_charge_actual
-            WHERE charge_type IN (
-                'LAST_MILE_PARCEL','DOMESTIC_TRUCKING','FREIGHT_INTL_SEA','FREIGHT_INTL_AIR',
-                'PORT_TERMINAL_FEE','FORWARDER_FEE','CARGO_INSURANCE'
-            )
-            GROUP BY period
-        """,
-        "min_rows": 1,
-    },
-    "customs": {
-        "query": """
-            SELECT period, COUNT(*) as cnt
-            FROM core.fact_charge_actual
-            WHERE charge_type IN ('CUSTOMS_DUTY','CUSTOMS_VAT','BROKER_FEE')
-            GROUP BY period
-        """,
-        "min_rows": 1,
-    },
-    "3pl_billing": {
-        "query": """
-            SELECT period, COUNT(*) as cnt
-            FROM core.fact_charge_actual
-            WHERE charge_type IN (
-                '3PL_STORAGE_FEE','3PL_PICK_PACK_FEE','3PL_HANDLING_FEE',
-                '3PL_RETURN_PROCESSING_FEE','DISPOSAL_FEE'
-            )
-            GROUP BY period
-        """,
-        "min_rows": 1,
-    },
-    "cost_structure": {
-        "query": "SELECT 'ALL' as period, COUNT(*) as cnt FROM core.fact_cost_structure",
-        "min_rows": 1,
-    },
-}
+def _build_domain_queries(config: AppConfig) -> dict:
+    """charge_policy.yaml 기반으로 도메인 쿼리를 동적 생성.
+
+    비-charge 테이블을 직접 조회하는 정적 도메인(fx_rate, revenue_settlement,
+    cost_structure)은 고정 쿼리를 사용하고, 나머지 charge 기반 도메인은
+    charge_policy.yaml의 charge_domain 분류에서 자동 생성한다.
+    새 charge_type을 charge_policy.yaml에 추가하면 커버리지 체크에 자동 반영된다.
+    """
+    queries = {
+        "fx_rate": {
+            "query": "SELECT period, COUNT(*) as cnt FROM core.fact_exchange_rate GROUP BY period",
+            "min_rows": 1,
+        },
+        "revenue_settlement": {
+            "query": "SELECT period, COUNT(*) as cnt FROM core.fact_settlement GROUP BY period",
+            "min_rows": 1,
+        },
+        "cost_structure": {
+            "query": "SELECT 'ALL' as period, COUNT(*) as cnt FROM core.fact_cost_structure",
+            "min_rows": 1,
+        },
+    }
+    domain_types = config.get_charge_types_by_domain()
+    for domain, charge_types in domain_types.items():
+        if domain not in queries:
+            types_sql = ", ".join(f"'{ct}'" for ct in sorted(charge_types))
+            queries[domain] = {
+                "query": (
+                    "SELECT period, COUNT(*) as cnt"
+                    " FROM core.fact_charge_actual"
+                    f" WHERE charge_type IN ({types_sql})"
+                    " GROUP BY period"
+                ),
+                "min_rows": 1,
+            }
+    return queries
 
 
 def compute_coverage(con: duckdb.DuckDBPyConnection, config: AppConfig) -> pl.DataFrame:
@@ -87,9 +75,10 @@ def compute_coverage(con: duckdb.DuckDBPyConnection, config: AppConfig) -> pl.Da
 
     rows = []
     domains = config.coverage_policy.get("domains", {})
+    domain_queries = _build_domain_queries(config)
 
     for domain_name, domain_cfg in domains.items():
-        dq = DOMAIN_QUERIES.get(domain_name)
+        dq = domain_queries.get(domain_name)
         if dq is None:
             continue
 
@@ -157,12 +146,13 @@ def enforce_closed_period_coverage(
     """
     errors = []
     close_enforcement = config.coverage_policy.get("close_period_enforcement", {})
+    domain_queries = _build_domain_queries(config)
 
     for domain_name, requirement in close_enforcement.items():
         if requirement != "REQUIRED":
             continue
 
-        dq = DOMAIN_QUERIES.get(domain_name)
+        dq = domain_queries.get(domain_name)
         if dq is None:
             continue
 
